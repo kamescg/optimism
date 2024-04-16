@@ -37,7 +37,7 @@ contract OptimismMintableERC721Factory_Test is Bridge_Initializer {
         // Create the token.
         vm.prank(alice);
         OptimismMintableERC721 created =
-            OptimismMintableERC721(factory.createOptimismMintableERC721(remote, "L2Token", "L2T"));
+            OptimismMintableERC721(factory.createOptimismMintableERC721(remote, "L2Token", "L2T", address(0)));
 
         // Token address should be correct.
         assertEq(address(created), local);
@@ -57,18 +57,18 @@ contract OptimismMintableERC721Factory_Test is Bridge_Initializer {
         address remote = address(1234);
 
         vm.prank(alice);
-        factory.createOptimismMintableERC721(remote, "L2Token", "L2T");
+        factory.createOptimismMintableERC721(remote, "L2Token", "L2T", address(0));
 
         vm.expectRevert(bytes(""));
 
         vm.prank(alice);
-        factory.createOptimismMintableERC721(remote, "L2Token", "L2T");
+        factory.createOptimismMintableERC721(remote, "L2Token", "L2T", address(0));
     }
 
     function test_createOptimismMintableERC721_zeroRemoteToken_reverts() external {
         // Try to create a token with a zero remote token address.
         vm.expectRevert("OptimismMintableERC721Factory: L1 token address cannot be address(0)");
-        factory.createOptimismMintableERC721(address(0), "L2Token", "L2T");
+        factory.createOptimismMintableERC721(address(0), "L2Token", "L2T", address(0));
     }
 
     function calculateTokenAddress(
@@ -80,9 +80,9 @@ contract OptimismMintableERC721Factory_Test is Bridge_Initializer {
         view
         returns (address)
     {
-        bytes memory constructorArgs = abi.encode(address(l2ERC721Bridge), 1, _remote, _name, _symbol);
+        bytes memory constructorArgs = abi.encode(address(l2ERC721Bridge), 1, _remote, _name, _symbol, address(0));
         bytes memory bytecode = abi.encodePacked(type(OptimismMintableERC721).creationCode, constructorArgs);
-        bytes32 salt = keccak256(abi.encode(_remote, _name, _symbol));
+        bytes32 salt = keccak256(abi.encode(_remote, _name, _symbol, address(0)));
         bytes32 hash = keccak256(abi.encodePacked(bytes1(0xff), address(factory), salt, keccak256(bytecode)));
         return address(uint160(uint256(hash)));
     }
