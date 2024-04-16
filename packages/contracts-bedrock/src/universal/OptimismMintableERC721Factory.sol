@@ -20,7 +20,8 @@ contract OptimismMintableERC721Factory is ISemver {
     /// @param localToken  Address of the token on the this domain.
     /// @param remoteToken Address of the token on the remote domain.
     /// @param deployer    Address of the initiator of the deployment
-    event OptimismMintableERC721Created(address indexed localToken, address indexed remoteToken, address deployer);
+    /// @param owner       Address of the owner of the token.
+    event OptimismMintableERC721Created(address indexed localToken, address indexed remoteToken, address deployer, address owner);
 
     /// @notice Semantic version.
     /// @custom:semver 1.4.0
@@ -40,10 +41,12 @@ contract OptimismMintableERC721Factory is ISemver {
     /// @param _remoteToken Address of the corresponding token on the other domain.
     /// @param _name        ERC721 name.
     /// @param _symbol      ERC721 symbol.
+    /// @param _owner       Address of the owner.
     function createOptimismMintableERC721(
         address _remoteToken,
         string memory _name,
-        string memory _symbol
+        string memory _symbol,
+        address _owner
     )
         external
         returns (address)
@@ -52,10 +55,10 @@ contract OptimismMintableERC721Factory is ISemver {
 
         bytes32 salt = keccak256(abi.encode(_remoteToken, _name, _symbol));
         address localToken =
-            address(new OptimismMintableERC721{ salt: salt }(BRIDGE, REMOTE_CHAIN_ID, _remoteToken, _name, _symbol));
+            address(new OptimismMintableERC721{ salt: salt }(BRIDGE, REMOTE_CHAIN_ID, _remoteToken, _name, _symbol, _owner));
 
         isOptimismMintableERC721[localToken] = true;
-        emit OptimismMintableERC721Created(localToken, _remoteToken, msg.sender);
+        emit OptimismMintableERC721Created(localToken, _remoteToken, msg.sender, _owner);
 
         return localToken;
     }
